@@ -11,7 +11,8 @@ export async function GET(req: Request) {
     });
 
     const url = new URL(req.url);
-    const limit = Math.min(Number(url.searchParams.get("limit") || 50), 200);
+    const limitParam = url.searchParams.get("limit");
+    const limit = Math.min(Number(limitParam ?? 50), 200);
 
     const { data, error } = await supabase
       .from("phrase_logs")
@@ -20,11 +21,13 @@ export async function GET(req: Request) {
       .limit(limit);
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-    return NextResponse.json({ items: data || [] });
-  } catch (e: any) {
-    return NextResponse.json({ error: String(e?.message || e) }, { status: 500 });
+    return NextResponse.json({ items: data ?? [] });
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : String(e);
+    return NextResponse.json({ error: msg }, { status: 500 });
   }
 }
+
 // DELETE /api/history?id=xxx
 export async function DELETE(req: Request) {
   try {
@@ -41,7 +44,8 @@ export async function DELETE(req: Request) {
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
     return NextResponse.json({ ok: true });
-  } catch (e: any) {
-    return NextResponse.json({ error: String(e?.message || e) }, { status: 500 });
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : String(e);
+    return NextResponse.json({ error: msg }, { status: 500 });
   }
 }

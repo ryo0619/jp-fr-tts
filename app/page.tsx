@@ -27,11 +27,12 @@ export default function Home() {
     (async () => {
       try {
         const res = await fetch("/api/history");
-        const json = await res.json();
-        if (res.ok) setItems(json.items || []);
-        else setErr(json.error || "failed to load history");
-      } catch (e: any) {
-        setErr(e.message ?? String(e));
+        const json = (await res.json()) as { items?: Item[]; error?: string };
+        if (res.ok) setItems(json.items ?? []);
+        else setErr(json.error ?? "failed to load history");
+      } catch (e: unknown) {
+        const msg = e instanceof Error ? e.message : String(e);
+        setErr(msg);
       }
     })();
   }, []);
@@ -47,13 +48,24 @@ export default function Home() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ jp }),
       });
-      const json = await res.json();
+      const json = (await res.json()) as {
+        fr?: string;
+        kana?: string;
+        audioUrl?: string;
+        error?: string;
+      };
       if (!res.ok) throw new Error(json.error || "failed");
-      const newItem: Item = { jp, fr: json.fr, kana: json.kana, audio_url: json.audioUrl };
+      const newItem: Item = {
+        jp,
+        fr: json.fr ?? "",
+        kana: json.kana ?? "",
+        audio_url: json.audioUrl ?? "",
+      };
       setItems((prev) => [newItem, ...prev]);
       setJp("");
-    } catch (e: any) {
-      setErr(e.message ?? String(e));
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : String(e);
+      setErr(msg);
     } finally {
       setLoading(false);
     }
@@ -93,32 +105,23 @@ export default function Home() {
     if (!confirm("削除しますか？")) return;
     try {
       const res = await fetch(`/api/history?id=${id}`, { method: "DELETE" });
-      const json = await res.json();
+      const json = (await res.json()) as { ok?: boolean; error?: string };
       if (!res.ok) throw new Error(json.error || "failed");
       setItems((prev) => prev.filter((p) => p.id !== id));
-    } catch (e: any) {
-      alert("削除失敗: " + (e.message ?? String(e)));
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : String(e);
+      alert("削除失敗: " + msg);
     }
-  };
-
-  const volumeIcon = (v: number | undefined) => {
-    const val = v ?? 1.0;
-    if (val === 0) return "🔇";
-    if (val < 0.34) return "🔈";
-    if (val < 0.67) return "🔉";
-    return "🔊";
   };
 
   return (
     <main className="mx-auto max-w-[720px] px-4 pb-24">
-      {/* ヘッダー */}
       <header className="sticky top-0 z-10 -mx-4 mb-4 border-b bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60">
         <div className="mx-auto max-w-[720px] px-4 py-3">
           <h1 className="text-lg font-semibold">JP → FR ＋ TTS（履歴つき）</h1>
         </div>
       </header>
 
-      {/* 入力フォーム */}
       <form onSubmit={onSubmit} className="grid gap-3">
         <textarea
           value={jp}
@@ -137,7 +140,6 @@ export default function Home() {
 
       {err && <p className="mt-3 text-sm text-red-600">{err}</p>}
 
-      {/* 履歴カード */}
       <section className="mt-5 grid gap-3">
         {items.map((it, idx) => {
           const key = it.id || `${it.jp}-${idx}`;
@@ -179,7 +181,6 @@ export default function Home() {
               </div>
 
               <div className="mt-3 flex items-center gap-3">
-                {/* 再生/停止 */}
                 <button
                   onClick={() => onPlay(key)}
                   className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-neutral-200 bg-white shadow-sm active:scale-95"
@@ -189,7 +190,6 @@ export default function Home() {
                   {playingId === key ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
                 </button>
 
-                {/* 音量アイコン（押すとスライダー表示切替） */}
                 <button
                   onClick={() => toggleVolumeBar(key)}
                   className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-neutral-200 bg-white shadow-sm active:scale-95"
@@ -199,7 +199,6 @@ export default function Home() {
                   <Volume2 className="h-5 w-5" />
                 </button>
 
-                {/* スライダー（スマホでも触りやすい幅） */}
                 {volumeVisible[key] && (
                   <input
                     type="range"
@@ -214,9 +213,10 @@ export default function Home() {
                   />
                 )}
 
-                {/* 実体のaudio（UI非表示） */}
                 <audio
-                  ref={(el) => (audioRefs.current[key] = el)}
+                  ref={(el) => {
+                    audioRefs.current[key] = el;
+                  }}
                   src={it.audio_url}
                   preload="none"
                   onEnded={() => setPlayingId(null)}
@@ -226,7 +226,6 @@ export default function Home() {
             </article>
           );
         })}
-
         {items.length === 0 && (
           <p className="text-sm text-neutral-500">
             まだ履歴はありません。上で日本語を入力して「翻訳＆音声生成」を押してください。

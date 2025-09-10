@@ -2,6 +2,7 @@
   "name": "jp-fr-tts",
   "version": "0.1.0",
   "private": true,
+  "engines": { "node": "20.x" },
   "scripts": {
     "dev": "cross-env TURBOPACK=0 next dev",
     "build": "next build --turbopack",
