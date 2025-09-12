@@ -99,7 +99,7 @@ export default function HistoryClient({ initialItems }: { initialItems: Item[] }
     <main className="mx-auto max-w-[720px] px-4 pb-24">
       <header className="sticky top-0 z-10 -mx-4 mb-4 border-b bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60">
         <div className="mx-auto max-w-[720px] px-4 py-3">
-          <h1 className="text-lg font-semibold">JP → FR + TSS（履歴付き）</h1>
+          <h1 className="text-lg font-semibold">フラたび</h1>
         </div>
       </header>
 

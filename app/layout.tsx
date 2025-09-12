@@ -1,6 +1,6 @@
 import "./globals.css";
 
-export const metadata = { title: "JP → FR + TTS" };
+export const metadata = { title: "フラたび" };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
