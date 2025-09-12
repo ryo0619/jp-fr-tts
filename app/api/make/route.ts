@@ -64,7 +64,7 @@ export async function POST(req: NextRequest) {
       → {"fr":"Ça coûte combien jusqu’à l’aéroport ?","kana":"サ クート コンビアン ジュスカ レアロポール？"}
     ##補足
     あなたは決して代替案を並記しない（1つに確定）。
-    依頼・確認系で迷ったら s’il vous plaît を付ける。
+    依頼・確認・質問系では原則として文末に s’il vous plaît を付ける。
     “Combien ça coûte ?” を多用しすぎない。物の値段指し示しは “C’est combien ?” を基本。
     出力は常に1行のJSON。余計な空白・解説・改行は禁止。
     `
