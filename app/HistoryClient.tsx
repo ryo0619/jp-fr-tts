@@ -29,10 +29,14 @@ export default function HistoryClient({ initialItems }: { initialItems: Item[] }
         fr?: string;
         kana?: string;
         audioUrl?: string;
+        id?: string | null;
+        createdAt?: string | null;
         error?: string;
       };
       if (!res.ok) throw new Error(json.error || "failed");
       const newItem: Item = {
+        id: json.id ?? undefined,
+        created_at: json.createdAt ?? undefined,
         jp,
         fr: json.fr ?? "",
         kana: json.kana ?? "",
